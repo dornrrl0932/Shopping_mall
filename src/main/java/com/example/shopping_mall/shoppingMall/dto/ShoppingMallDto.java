@@ -17,7 +17,7 @@ public class ShoppingMallDto {
     private String phoneNumber;
     private String operatorEmail;
     private String business_status;
-    private LocalDate firstReportDate;
-    private LocalDate monitoringDate;
+    private String firstReportDate;
+    private String monitoringDate;
 
 }
