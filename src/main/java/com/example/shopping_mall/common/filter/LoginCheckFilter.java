@@ -1,4 +1,4 @@
-package com.example.shopping_mall.auth.filter;
+package com.example.shopping_mall.common.filter;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

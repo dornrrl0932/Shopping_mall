@@ -1,7 +1,9 @@
 package com.example.shopping_mall.shoppingMall.service;
 
 import com.example.shopping_mall.entity.shoppingMall.ShoppingMall;
+import com.example.shopping_mall.shoppingMall.dto.ShoppingMallCursorInquiryResponseDto;
 import com.example.shopping_mall.shoppingMall.dto.ShoppingMallDto;
+import com.example.shopping_mall.shoppingMall.repository.ShoppingMallQueryRepository;
 import com.example.shopping_mall.shoppingMall.repository.ShoppingMallRepository;
 import com.opencsv.CSVReader;
 import com.opencsv.bean.CsvToBean;
@@ -21,9 +23,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.ListUtils;
 import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,165 +38,23 @@ import java.util.stream.Collectors;
 public class ShoppingMallService {
 
     private final ShoppingMallRepository shoppingMallRepository;
-//
-//    //전체평가 조회
-//    public List<ShoppingMallDto> overallRatingInquiry(int overallRating) {
-//
-//        //입력받은 별점 확인
-//        if (0 > overallRating || overallRating > 3) {
-//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "평가 별점은 최소 0점, 최대 3점입니다.");
-//        }
-//
-//        //ShoppingMall 조회
-//        List<ShoppingMall> shoppingMallList = shoppingMallRepository.findAllByOverallRating(
-//                overallRating);
-//
-//        // ShoppingMall -> ShoppingMallDto로 변환
-//        List<ShoppingMallDto> shoppingMallDtos = shoppingMallList.stream().map(shoppingMall ->
-//                        new ShoppingMallDto(
-//                                shoppingMall.getShoppingMallId(),
-//                                shoppingMall.getBusinessName(),
-//                                shoppingMall.getStoreName(),
-//                                shoppingMall.getOverallRating(),
-//                                shoppingMall.getDomainName(),
-//                                shoppingMall.getPhoneNumber(),
-//                                shoppingMall.getOperatorEmail(),
-//                                shoppingMall.getBusinessStatus(),
-//                                shoppingMall.getFirstReportDate(),
-//                                shoppingMall.getMonitoringDate()))
-//                .collect(Collectors.toList());
-//
-//        return shoppingMallDtos;
-//    }
-//
-//    //업소 상태 조회
-//    public List<ShoppingMallDto> businessStatusInquiry(String businessStatus) {
-//
-//        List<ShoppingMall> shoppingMallList = shoppingMallRepository.findAllByBusinessStatusOrThrowException(
-//                businessStatus);
-//
-//        // ShoppingMall -> ShoppingMallDto로 변환
-//        List<ShoppingMallDto> shoppingMallDtos = shoppingMallList.stream().map(shoppingMall ->
-//                        new ShoppingMallDto(
-//                                shoppingMall.getShoppingMallId(),
-//                                shoppingMall.getBusinessName(),
-//                                shoppingMall.getStoreName(),
-//                                shoppingMall.getOverallRating(),
-//                                shoppingMall.getDomainName(),
-//                                shoppingMall.getPhoneNumber(),
-//                                shoppingMall.getOperatorEmail(),
-//                                shoppingMall.getBusinessStatus(),
-//                                shoppingMall.getFirstReportDate(),
-//                                shoppingMall.getMonitoringDate()))
-//                .collect(Collectors.toList());
-//
-//        return shoppingMallDtos;
-//    }
-//
-//    //모니터링 날짜 내림차순 조회
-//    public List<ShoppingMallDto> monitoringDateDescendingOrder() {
-//
-//        List<ShoppingMall> shoppingMallList = shoppingMallRepository.findAllByOrderByMonitoringDateDesc();
-//
-//        // ShoppingMall -> ShoppingMallDto로 변환
-//        List<ShoppingMallDto> shoppingMallDtos = shoppingMallList.stream().map(shoppingMall ->
-//                        new ShoppingMallDto(
-//                                shoppingMall.getShoppingMallId(),
-//                                shoppingMall.getBusinessName(),
-//                                shoppingMall.getStoreName(),
-//                                shoppingMall.getOverallRating(),
-//                                shoppingMall.getDomainName(),
-//                                shoppingMall.getPhoneNumber(),
-//                                shoppingMall.getOperatorEmail(),
-//                                shoppingMall.getBusinessStatus(),
-//                                shoppingMall.getFirstReportDate(),
-//                                shoppingMall.getMonitoringDate()))
-//                .collect(Collectors.toList());
-//
-//        return shoppingMallDtos;
-//    }
+    private final ShoppingMallQueryRepository shoppingMallQueryRepository;
+
+    // 전체평가 점수 조회 + 업소상태 조회
+    public List<ShoppingMallDto> shoppingMallSummary(
+            Integer overallRating,
+            String businessStatus
+    ) {
 
     private static final String CSV_FILE_PATH = "C:\\Users\\bette\\Downloads\\서울시 인터넷 쇼핑몰 현황.csv";  // 실제 파일 경로로 변경
+        // 전체평점과 업소상태로 쇼핑몰 리스트 조회
+        List<ShoppingMall> shoppingMallList
+                = shoppingMallRepository.findAllByOverallRatingAndBusinessStatusOrderByMonitoringDateDesc(overallRating, businessStatus);
 
-//    public void insertShoppingMallFromCSV() {
-//        try (Reader reader = new FileReader(CSV_FILE_PATH)) {
-//            CsvToBean<ShoppingMall> csvToBean = new CsvToBeanBuilder<ShoppingMall>(reader)
-//                    .withType(ShoppingMall.class)
-//                    .withIgnoreLeadingWhiteSpace(true)
-//                    .build();
-//
-//            List<ShoppingMall> shoppingMallList = csvToBean.parse();
-//
-////            // DTO를 엔티티로 변환 후 저장
-////            List<ShoppingMall> entities = shoppingMallList.stream()
-////                    .map(dto -> new ShoppingMall(
-////                            dto.getBusinessName(),
-////                            dto.getStoreName(),
-////                            dto.getDomainName(),
-////                            dto.getPhoneNumber(),
-////                            dto.getOperatorEmail(),
-////                            dto.getBusinessStatus(),
-////                            dto.getOverallRating(),
-////                            dto.getFirstReportDate(),
-////                            dto.getMonitoringDate()
-////                    ))
-////                    .collect(Collectors.toList());
-//
-//            shoppingMallRepository.saveAll(shoppingMallList);  // 한 번에 저장하여 성능 향상
-//
-//        } catch (IOException e) {
-//            log.error("CSV 파일을 읽는 중 오류 발생", e);
-//            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CSV 파일을 읽는 중 오류 발생");
-//        }
-//    }
-
-//    public void insertShoppingMallFromCSV() {
-//        try (Reader reader = new FileReader(CSV_FILE_PATH)) {
-//            CsvToBean<ShoppingMall> csvToBean = new CsvToBeanBuilder<ShoppingMall>(reader)
-//                    .withType(ShoppingMall.class)
-//                    .withIgnoreLeadingWhiteSpace(true)
-//                    .build();
-//
-//            List<ShoppingMall> shoppingMallList = csvToBean.parse();
-//
-//            for (ShoppingMall mall : shoppingMallList) {
-//                System.out.println(mall.getField2());
-//            }
-//
-//            // 데이터를 100개씩 나누어 저장
-//            ListUtils.partition(shoppingMallList, 100).forEach(shoppingMallRepository::saveAll);
-//
-//        } catch (IOException e) {
-//            log.error("CSV 파일을 읽는 중 오류 발생", e);
-//            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CSV 파일을 읽는 중 오류 발생");
-//
-//        }
-//
-//    }
-//
-//
-//    public List<ShoppingMall> readCsvFile() {
-//        List<ShoppingMall> shoppingMallList = new ArrayList<>();
-//
-//        try (CSVReader reader = new CSVReader(new InputStreamReader(new FileInputStream(CSV_FILE_PATH), StandardCharsets.UTF_8))) {
-//            String[] line;
-//
-//            reader.readNext();
-//
-//            while ((line = reader.readNext()) != null) {
-//                String store_name = line[0];
-//                String field2 = line[1];
-//                String field3 = line[2];
-//                String field4 = line[3];
-//
-//                shoppingMallList.add(new ShoppingMall(store_name, field2, field3, field4));
-//            }
-//        } catch (IOException | CsvValidationException e) {
-//            e.printStackTrace();
-//        }
-//
-//        return shoppingMallList;
-//    }
+        List<ShoppingMallDto> shoppingMallDtos = shoppingMallList
+                .stream()
+                .map(ShoppingMallDto::convertToDto)
+                .toList();
 
     public void insertShoppingMallFromCSV() {
         try (Reader reader = new FileReader(CSV_FILE_PATH)) {
@@ -240,24 +103,47 @@ public class ShoppingMallService {
                             dto.getMonitoringDate()  // 날짜 변환
                     ))
                     .collect(Collectors.toList());
+    // 전체평가 점수 조회 + 업소상태 조회(페이지네이션 적용)
+    public List<ShoppingMallDto> pageShoppingMallSummary(
+            Pageable pageable,
+            Integer overallRating,
+            String businessStatus
+    ) {
 
-            shoppingMallRepository.saveAll(entities);
+        //페이징 처리 된 쇼핑몰 데이터 조회
+        Page<ShoppingMall> shoppingMallPage = shoppingMallRepository.findAllByOverallRatingAndBusinessStatusOrderByMonitoringDateDesc(overallRating, businessStatus, pageable);
 
-        } catch (IOException e) {
-            log.error("CSV 파일을 읽는 중 오류 발생", e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CSV 파일을 읽는 중 오류 발생");
-        }
+        //ShoppingMall -> ShoppingMallDto로 변환
+        List<ShoppingMallDto> shoppingMallDtos = shoppingMallPage.stream()
+                .map(ShoppingMallDto::convertToDto)
+                .toList();
+
+        return shoppingMallDtos;
     }
 
-    // ✅ 문자열 날짜를 LocalDate로 변환하는 메서드
-    private LocalDate parseDate(String dateString) {
-        try {
-            return LocalDate.parse(dateString, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        } catch (Exception e) {
-            log.warn("잘못된 날짜 형식: " + dateString);
-            return null;  // 오류 발생 시 null 저장
-        }
+
+    // 전체평가 점수 조회 + 업소상태 조회(커서 기반 페이지네이션 적용)
+    public ShoppingMallCursorInquiryResponseDto ShoppingMallRatingAndStatusInquiry(
+            Integer overallRating,
+            String businessStatus,
+            LocalDate cursor,
+            int size) {
+
+        //QueryDSL로 데이터 조회
+        List<ShoppingMall> shoppingMallList = shoppingMallQueryRepository.findShoppingMallByRatingAndStatusWithCursor(overallRating, businessStatus, cursor, size);
+
+        //ShoppingMall -> ShoppingMallDto로 변환
+//        List<ShoppingMallDto> shoppingMallDtos = convertToDtoList(shoppingMallList);
+
+        List<ShoppingMallDto> shoppingMallDtos = shoppingMallList
+                .stream()
+                .map(ShoppingMallDto::convertToDto)
+                .toList();
+
+        //페이지의 마지막 모니터링 날짜
+        LocalDate lastMonitoringDate = shoppingMallList.get(shoppingMallList.size() - 1).getMonitoringDate();
+
+        return new ShoppingMallCursorInquiryResponseDto(shoppingMallDtos, lastMonitoringDate);
     }
 }
-
 

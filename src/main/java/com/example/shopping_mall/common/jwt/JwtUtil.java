@@ -1,4 +1,4 @@
-package com.example.shopping_mall.auth.jwt;
+package com.example.shopping_mall.common.jwt;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;

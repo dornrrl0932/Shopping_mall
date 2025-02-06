@@ -1,4 +1,4 @@
-package com.example.shopping_mall.auth.filter;
+package com.example.shopping_mall.common.filter;
 
 import org.springframework.stereotype.Component;
 import java.util.List;

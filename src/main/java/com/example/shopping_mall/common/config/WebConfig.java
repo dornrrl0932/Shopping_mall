@@ -1,9 +1,9 @@
 package com.example.shopping_mall.common.config;
 
-import com.example.shopping_mall.auth.filter.FilterWhiteList;
-import com.example.shopping_mall.auth.filter.LoginCheckFilter;
-import com.example.shopping_mall.auth.filter.TokenParsingFilter;
-import com.example.shopping_mall.auth.jwt.JwtUtil;
+import com.example.shopping_mall.common.filter.FilterWhiteList;
+import com.example.shopping_mall.common.filter.LoginCheckFilter;
+import com.example.shopping_mall.common.filter.TokenParsingFilter;
+import com.example.shopping_mall.common.jwt.JwtUtil;
 import jakarta.servlet.Filter;
 import lombok.AllArgsConstructor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;

@@ -1,9 +1,9 @@
-package com.example.shopping_mall.auth.filter;
+package com.example.shopping_mall.common.filter;
 
 import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.example.shopping_mall.auth.jwt.JwtUtil;
+import com.example.shopping_mall.common.jwt.JwtUtil;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
