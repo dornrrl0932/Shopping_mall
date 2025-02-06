@@ -59,4 +59,12 @@ public class ShoppingMallController {
 
         return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.toString(), "쇼핑몰 조회 성공", shoppingMallDtos));
     }
+
+    @PostMapping("/collection")
+    public ResponseEntity<ApiResponse<String>> insertShoppingMallFromCSV() {
+
+        shoppingMallService.readCsv();
+
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.toString(), "CSV 데이터 저장 완료", "success"));
+    }
 }
